@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<title>Screen test</title>
+</head>
+<body>
+
+
+<script type="text/javascript">
+	var canvas = null;
+	var ctx = null;
+	var bracket = null;
+
+	const Orientation = {
+		UP: 0,
+		DOWN: 1,
+		LEFT: 2,
+		RIGHT: 3
+	}
+
+	OrientationToString = ["UP", "DOWN", "LEFT", "RIGHT"];
+
+	var json_result = {"size_bracket": [30, 20, 10, 7, 5, 4, 3, 2, 1], "true_orientation": [], "meas_orientation": []};
+
+</script>
+
+<canvas id="canvas" width="800" height="600" style="border:1px solid #000000;"></canvas>
+
+
+<script type="text/javascript">
+
+
+class Bracket {
+
+	constructor(x, y, size, or) {
+
+		this.x = x;
+		this.y = y;
+		this.size = size;
+		this.o = or;
+
+		this.color = "rgb(255,255,255)";
+	}
+
+
+	draw() {
+		ctx.fillStyle = this.color;
+		var s = this.size / 5.;
+
+		if(this.o == Orientation.RIGHT) {
+			ctx.fillRect(this.x, this.y, this.size, s);
+			ctx.fillRect(this.x, this.y+2*s, this.size, s);
+			ctx.fillRect(this.x, this.y+4*s, this.size, s);
+			ctx.fillRect(this.x, this.y, s, this.size);
+		}
+
+		if(this.o == Orientation.LEFT) {
+			ctx.fillRect(this.x, this.y, this.size, s);
+			ctx.fillRect(this.x, this.y+2*s, this.size, s);
+			ctx.fillRect(this.x, this.y+4*s, this.size, s);
+			ctx.fillRect(this.x+4*s, this.y, s, this.size);
+		}
+
+		if(this.o == Orientation.DOWN) {
+			ctx.fillRect(this.x, this.y, s, this.size);
+			ctx.fillRect(this.x+2*s, this.y, s, this.size);
+			ctx.fillRect(this.x+4*s, this.y, s, this.size);
+			ctx.fillRect(this.x, this.y, this.size, s);
+		}
+
+		if(this.o == Orientation.UP) {
+			ctx.fillRect(this.x, this.y, s, this.size);
+			ctx.fillRect(this.x+2*s, this.y, s, this.size);
+			ctx.fillRect(this.x+4*s, this.y, s, this.size);
+			ctx.fillRect(this.x, this.y+4*s, this.size, s);
+		}
+	}
+
+	setOrientation(or, size) {
+		this.size = size;
+		this.o = or;
+
+		this.draw();
+	}
+
+	getOrientation() {
+		return this.o;
+	}
+
+}
+
+
+
+document.addEventListener('keydown', (event) => {
+  
+  	var sel_orientation = -1;
+	if (event.key == "ArrowLeft") {
+		sel_orientation = Orientation.LEFT;
+	}
+
+	if (event.key == "ArrowUp") {
+		sel_orientation = Orientation.UP;
+	}
+
+	if (event.key == "ArrowRight") {
+		sel_orientation = Orientation.RIGHT;
+	}
+
+	if (event.key == "ArrowDown") {
+		sel_orientation = Orientation.DOWN;
+	}
+
+	if(event.key == "Escape") {
+		json_result['last_level'] = json_result.size_bracket[json_result.true_orientation.length]
+		alert(JSON.stringify(json_result))
+	}
+
+	if(sel_orientation != -1) {
+		ctx.fillStyle = "black";
+		ctx.rect(0, 0, canvas.width, canvas.height);
+		ctx.fill();
+
+		if(json_result.true_orientation.length < json_result.size_bracket.length) {
+			json_result.true_orientation.push(OrientationToString[bracket.getOrientation()]);
+			json_result.meas_orientation.push(OrientationToString[sel_orientation]);
+		}
+
+		if(json_result.true_orientation.length < json_result.size_bracket.length) {
+			bracket.setOrientation(Math.floor(Math.random() * 4), json_result.size_bracket[json_result.true_orientation.length]);
+			json_result['last_level'] = json_result.size_bracket[json_result.true_orientation.length]
+
+			ctx.font = '20px serif';
+			ctx.fillText('Use keyboard arrows to indicate orientation. Press [esc] to abandon.', (canvas.width)/2-250, canvas.height-canvas.height/7);
+
+		} else {
+			alert(JSON.stringify(json_result))
+		}
+	}
+
+
+
+}, false);
+
+
+function init_interface() {
+	canvas  = document.getElementById('canvas');
+	ctx     = canvas.getContext('2d');
+
+	canvas.width = window.innerWidth-20;
+	canvas.height = window.innerHeight-25;
+
+	ctx.rect(0, 0, canvas.width, canvas.height);
+	ctx.fill();
+
+	bracket = new Bracket(canvas.width/2, canvas.height/2, json_result.size_bracket[0], Math.floor(Math.random() * 4));
+	bracket.draw();
+
+	ctx.font = '20px serif';
+	ctx.fillText('Use keyboard arrows to indicate orientation. Press [esc] to abandon.', (canvas.width)/2-250, canvas.height-canvas.height/7);
+
+}
+
+
+
+window.onload = function() {
+	init_interface();
+
+	document.body.style.backgroundColor = "black"; 
+};
+
+</script> 
+
+
+</body>
+</html>
